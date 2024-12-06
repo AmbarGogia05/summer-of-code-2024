@@ -1,5 +1,5 @@
 from flask import Flask #type: ignore
-from config import config_map #type: ignore
+from config import config_map, DB_CONFIG #type: ignore
 import psycopg2 #type: ignore
 import os
 
@@ -19,11 +19,11 @@ def create_app():
     return app
 
 def get_db_connection(host, port, dbname, user, password):
-    host = os.getenv("DB_HOST", "localhost")
-    port = os.getenv("DB_PORT", 5432)
-    dbname = os.getenv("DB_NAME", "dsoc_db")
-    user = os.getenv("DB_USER", "admin")
-    password = os.getenv("DB_PASSWORD", "admin")
+    host = DB_CONFIG["host"]
+    port = DB_CONFIG["port"]
+    dbname = DB_CONFIG["dbname"]
+    user = DB_CONFIG["user"]
+    password = DB_CONFIG["password"]
 
     connection = psycopg2.connect(
         host=host,
