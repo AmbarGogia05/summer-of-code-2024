@@ -1,16 +1,20 @@
 from flask import Flask #type: ignore
-from config import config_map, DB_CONFIG #type: ignore
+from config import Config #type: ignore
 import psycopg2 #type: ignore
 import os
+from .init_db import db, init_db
+from flask_migrate import Migrate #type: ignore
+
 
 def create_app():
     app = Flask(__name__)
-    config_name = os.getenv("FLASK_ENV", "development")
-    app.config.from_object(config_map[config_name])
+    app.config.from_object(Config)
 
     # Initialize Flask extensions here
-
+    init_db(app) #initialize the db
+    migrate = Migrate(app, db) #start migration
     # Register blueprints here
+
 
     @app.route('/test/')
     def test_page():
@@ -18,19 +22,3 @@ def create_app():
 
     return app
 
-def get_db_connection(host, port, dbname, user, password):
-    host = DB_CONFIG["host"]
-    port = DB_CONFIG["port"]
-    dbname = DB_CONFIG["dbname"]
-    user = DB_CONFIG["user"]
-    password = DB_CONFIG["password"]
-
-    connection = psycopg2.connect(
-        host=host,
-        port=port,
-        dbname=dbname,
-        user=user,
-        password=password
-    )
-
-    return connection
