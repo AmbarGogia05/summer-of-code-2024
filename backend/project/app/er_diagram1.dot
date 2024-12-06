@@ -1,0 +1,17 @@
+
+      graph {
+         graph [rankdir=LR];
+         node [label="\N",
+             shape=plaintext
+         ];
+         edge [color=gray50,
+             minlen=2,
+             style=dashed
+         ];
+      
+"InventoryItem" [label=<<FONT FACE="Helvetica"><TABLE BORDER="0" CELLBORDER="1" CELLPADDING="4" CELLSPACING="0"><TR><TD><B><FONT POINT-SIZE="16">InventoryItem</FONT></B></TD></TR><TR><TD ALIGN="LEFT" PORT="Item_SKU"><u><FONT>Item_SKU</FONT></u> <FONT> [INTEGER]</FONT> NOT NULL</TD></TR><TR><TD ALIGN="LEFT" PORT="Item_Description"><FONT>Item_Description</FONT> <FONT> [VARCHAR(200)]</FONT></TD></TR><TR><TD ALIGN="LEFT" PORT="Item_Name"><FONT>Item_Name</FONT> <FONT> [VARCHAR(80)]</FONT> NOT NULL</TD></TR><TR><TD ALIGN="LEFT" PORT="Item_Price"><FONT>Item_Price</FONT> <FONT> [DOUBLE PRECISION]</FONT> NOT NULL</TD></TR><TR><TD ALIGN="LEFT" PORT="Item_Qty"><FONT>Item_Qty</FONT> <FONT> [INTEGER]</FONT> NOT NULL</TD></TR></TABLE></FONT>>];
+"Staff" [label=<<FONT FACE="Helvetica"><TABLE BORDER="0" CELLBORDER="1" CELLPADDING="4" CELLSPACING="0"><TR><TD><B><FONT POINT-SIZE="16">Staff</FONT></B></TD></TR><TR><TD ALIGN="LEFT" PORT="s_ID"><u><FONT>s_ID</FONT></u> <FONT> [INTEGER]</FONT> NOT NULL</TD></TR><TR><TD ALIGN="LEFT" PORT="s_Contact"><FONT>s_Contact</FONT> <FONT> [VARCHAR(10)]</FONT> NOT NULL</TD></TR><TR><TD ALIGN="LEFT" PORT="s_Email"><FONT>s_Email</FONT> <FONT> [VARCHAR(100)]</FONT> NOT NULL</TD></TR><TR><TD ALIGN="LEFT" PORT="s_Name"><FONT>s_Name</FONT> <FONT> [VARCHAR(100)]</FONT> NOT NULL</TD></TR><TR><TD ALIGN="LEFT" PORT="s_isAdmin"><FONT>s_isAdmin</FONT> <FONT> [BOOLEAN]</FONT> NOT NULL</TD></TR></TABLE></FONT>>];
+"Customer" [label=<<FONT FACE="Helvetica"><TABLE BORDER="0" CELLBORDER="1" CELLPADDING="4" CELLSPACING="0"><TR><TD><B><FONT POINT-SIZE="16">Customer</FONT></B></TD></TR><TR><TD ALIGN="LEFT" PORT="c_ID"><u><FONT>c_ID</FONT></u> <FONT> [INTEGER]</FONT> NOT NULL</TD></TR><TR><TD ALIGN="LEFT" PORT="c_Contact"><FONT>c_Contact</FONT> <FONT> [VARCHAR(10)]</FONT> NOT NULL</TD></TR><TR><TD ALIGN="LEFT" PORT="c_Email"><FONT>c_Email</FONT> <FONT> [VARCHAR(100)]</FONT> NOT NULL</TD></TR><TR><TD ALIGN="LEFT" PORT="c_Name"><FONT>c_Name</FONT> <FONT> [VARCHAR(100)]</FONT> NOT NULL</TD></TR></TABLE></FONT>>];
+"Transaction" [label=<<FONT FACE="Helvetica"><TABLE BORDER="0" CELLBORDER="1" CELLPADDING="4" CELLSPACING="0"><TR><TD><B><FONT POINT-SIZE="16">Transaction</FONT></B></TD></TR><TR><TD ALIGN="LEFT" PORT="t_ID"><u><FONT>t_ID</FONT></u> <FONT> [INTEGER]</FONT> NOT NULL</TD></TR><TR><TD ALIGN="LEFT" PORT="c_ID"><FONT>c_ID</FONT> <FONT> [INTEGER]</FONT> NOT NULL</TD></TR><TR><TD ALIGN="LEFT" PORT="t_Amount"><FONT>t_Amount</FONT> <FONT> [DOUBLE PRECISION]</FONT> NOT NULL</TD></TR><TR><TD ALIGN="LEFT" PORT="t_Category"><FONT>t_Category</FONT> <FONT> [VARCHAR(10)]</FONT> NOT NULL</TD></TR><TR><TD ALIGN="LEFT" PORT="t_Date"><FONT>t_Date</FONT> <FONT> [DATE]</FONT> NOT NULL</TD></TR></TABLE></FONT>>];
+"Customer":"c_ID" -- "Transaction":"c_ID" [taillabel=<<FONT>1</FONT>>,headlabel=<<FONT>0..N</FONT>>];
+}
