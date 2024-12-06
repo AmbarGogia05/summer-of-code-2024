@@ -1,5 +1,4 @@
 from flask_sqlalchemy import SQLAlchemy #type: ignore
-from .models import db
 
 db = SQLAlchemy() #initialises database and creates tables that haven't already been created
 

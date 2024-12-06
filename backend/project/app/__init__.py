@@ -11,8 +11,10 @@ def create_app():
     app.config.from_object(Config)
 
     # Initialize Flask extensions here
+
     init_db(app) #initialize the db
     migrate = Migrate(app, db) #start migration
+    
     # Register blueprints here
 
 
