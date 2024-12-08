@@ -1,9 +1,9 @@
-from flask import Flask #type: ignore
-from config import Config #type: ignore
-import psycopg2 #type: ignore
+from flask import Flask
+from config import Config 
+import psycopg2 
 import os
-from .init_db import db, init_db
-from flask_migrate import Migrate #type: ignore
+from app.models import db, init_db
+from flask_migrate import Migrate 
 
 
 def create_app():
