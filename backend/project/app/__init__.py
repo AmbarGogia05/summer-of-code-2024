@@ -4,7 +4,7 @@ import psycopg2
 import os
 from app.models import db, init_db
 from flask_migrate import Migrate 
-
+from app.api import api_blueprint
 
 def create_app():
     app = Flask(__name__)
@@ -16,6 +16,7 @@ def create_app():
     migrate = Migrate(app, db) #start migration
     
     # Register blueprints here
+    app.register_blueprint(api_blueprint, url_prefix='/api')
 
 
     @app.route('/test/')
@@ -23,4 +24,3 @@ def create_app():
         return '<h1>Testing the Flask Application Factory Pattern</h1>'
 
     return app
-
