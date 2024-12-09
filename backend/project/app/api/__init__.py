@@ -15,7 +15,14 @@ api.add_resource(ProductCreateResource, '/products/add')
 api.add_resource(ProductDeleteResource, '/products/delete')
 api.add_resource(ProductUpdateResource, '/products/update')
 
-#register API resources below
 @api_blueprint.route('/products/add')
 def product_add():
     return render_template("product_add.html")
+
+@api_blueprint.route('/products/update')
+def product_update():
+    return render_template("product_update.html")
+
+@api_blueprint.route('/products/delete')
+def product_delete():
+    return render_template("product_delete.html")

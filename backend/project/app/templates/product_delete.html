@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{%block content%}
+<h1>{% block title %} Delete Product {%endblock%}</h1>
+
+<form id="productdeleteForm">
+
+    <label for="item_sku">Item SKU:</label>
+    <input type="text" id="item_sku" name="Item_SKU" required>
+
+    <button type="submit">Submit</button>
+
+</form>
+
+<script>
+    document.getElementById('productdeleteForm').addEventListener('submit', function(event) {
+        event.preventDefault();  // Prevent the form from submitting the traditional way
+
+        // Gather form data
+        const formData = {
+            Item_SKU: document.getElementById('item_sku').value,
+
+        };
+
+        // Determine whether to create or update
+        const apiUrl = '/api/products/delete';  // Adjust this URL based on your API route
+
+        // Send data to the API
+        fetch(apiUrl, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        })
+        .then(response => {
+        if (response.ok) {
+            return response.json(); // Parse JSON only if response is OK
+        }
+        // Handle non-JSON responses
+        return response.text().then(errText => {
+            throw new Error(`Error: ${response.status} - ${errText}`);
+        });
+    })        
+        .then(data => {
+            console.log('Success:', data);
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.innerHTML = `<div class="alert alert-success" role="alert">
+                ${data.message || 'Product deleted successfully!'} 
+        </div>`;        
+})
+        .catch((error) => {
+            console.error('Error:', error);
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.innerHTML = `<div class="alert alert-danger" role="alert">
+                An error occurred: ${error.message || 'Unable to delete product. Please try again.'}
+            </div>`;
+        });
+    });
+</script>
+<div id="messageContainer"></div>
+{%endblock%}
