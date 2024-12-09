@@ -22,7 +22,11 @@ class ProductGetResource(Resource):
                     product = products[0]
                     return {"message": {"SKU": product.Item_SKU, "Name": product.Item_Name, "Description": product.Item_Description, "Price": product.Item_Price, "Quantity": product.Item_Qty}}, 200
                 else:
-                    result = {i+1: {"SKU": item.Item_SKU, "Name": item.Item_Name, "Description": item.Item_Description, "Price": item.Item_Price, "Quantity": item.Item_Qty} for i, item in enumerate(products)}
+                    result = {i+1: {"SKU": item.Item_SKU,
+                                    "Name": item.Item_Name, 
+                                    "Description": item.Item_Description, 
+                                    "Price": item.Item_Price, 
+                                    "Quantity": item.Item_Qty} for i, item in enumerate(products)}
                     return {"message": result}, 200
 
         elif args["Item_Name"] and args["Item_SKU"]:

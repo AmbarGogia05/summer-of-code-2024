@@ -2,27 +2,29 @@
 {%block content%}
 <h1>{% block title %} Update Product {%endblock%}</h1>
 
-<form id="productupdateForm">
+<div class="form-group"><form id="productupdateForm">
+<div class="w-25">
+    <label for="item_sku">Item SKU:</label><br>
+    <input type="text" class="form-control" id="item_sku" name="Item_SKU" required><br>
 
-    <label for="item_sku">Item SKU:</label>
-    <input type="text" id="item_sku" name="Item_SKU" required>
+    <label for="item_name">Item Name:</label><br>
+    <input type="text" class="form-control" id="item_name" name="Item_Name"><br>
+</div>
+<div class="w-75">
+    <label for="item_desc">Item Description:</label><br>
+    <input type="text" class="form-control" id="item_desc" name="Item_Description"><br>
+</div>
+    <div class="w-25">
+    <label for="item_price">Price:</label><br>
+    <input type="number" class="form-control" id="item_price" name="Item_Price" step="0.01"><br>
 
-    <label for="item_name">Item Name:</label>
-    <input type="text" id="item_name" name="Item_Name">
-
-    <label for="item_desc">Item Description:</label>
-    <input type="text" id="item_desc" name="Item_Description">
-
-    <label for="item_price">Price:</label>
-    <input type="number" id="item_price" name="Item_Price" step="0.01">
-
-    <label for="item_qty">Quantity:</label>
-    <input type="number" id="item_qty" name="Item_Qty">
-
-    <button type="submit">Submit</button>
+    <label for="item_qty">Quantity:</label><br>
+    <input type="number" class="form-control" id="item_qty" name="Item_Qty"><br>
+</div>
+    <button type="submit" class="btn btn-primary mb-2">Submit</button>
 
 </form>
-
+</div>
 <script>
     document.getElementById('productupdateForm').addEventListener('submit', function(event) {
         event.preventDefault();  // Prevent the form from submitting the traditional way

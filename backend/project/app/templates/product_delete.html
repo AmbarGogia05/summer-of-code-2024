@@ -1,16 +1,17 @@
 {% extends 'base.html' %}
 {%block content%}
 <h1>{% block title %} Delete Product {%endblock%}</h1>
+<div class="form-group">
 
 <form id="productdeleteForm">
-
-    <label for="item_sku">Item SKU:</label>
-    <input type="text" id="item_sku" name="Item_SKU" required>
-
-    <button type="submit">Submit</button>
+    <div class="w-25">
+    <label for="item_sku">Item SKU:</label><br><br>
+    <input type="text" class="form-control" id="item_sku" name="Item_SKU" required><br>
+    </div>
+    <button type="submit" class="btn btn-primary mb-2">Submit</button>
 
 </form>
-
+</div>
 <script>
     document.getElementById('productdeleteForm').addEventListener('submit', function(event) {
         event.preventDefault();  // Prevent the form from submitting the traditional way
