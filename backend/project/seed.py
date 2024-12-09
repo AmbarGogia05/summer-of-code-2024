@@ -5,6 +5,9 @@ from app.models import Product, Customer, Transaction
 app = create_app()
 
 with app.app_context():
+    db.drop_all()
+    db.create_all()
+
     Customer1 = Customer(c_Name='Ambar', c_Email='ambargogia@gmail.com', c_Contact='9811896306')
     Customer2 = Customer(c_Name='Admin', c_Email='adminadmin@gmail.com', c_Contact='9101912123')
     Customer1.validate_phone_number()
@@ -24,8 +27,6 @@ with app.app_context():
 
     db.session.commit()
 
-
     
-    
-    print(f'Total value of inventory is: {Product.total_val}')
+    print(f'Total value of inventory is: {Product.total_val("Product")}')
     

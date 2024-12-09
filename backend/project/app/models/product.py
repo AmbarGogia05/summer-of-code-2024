@@ -14,7 +14,9 @@ class Product(db.Model):
     def total_val(self):
         pricesandqty = Product.query.with_entities(Product.Item_Price, Product.Item_Qty).all()
         sum = 0
-        return sum(price * qty for price, qty in pricesandqty)
+        for i in range (len(pricesandqty)):
+            sum += pricesandqty[i][0]*pricesandqty[i][1]
+        return sum
     
     def validate_price(self):
         if self.Item_Price < 0:

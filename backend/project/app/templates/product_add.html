@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{%block content%}
+<h1>{% block title %} Add Product {%endblock%}</h1>
+
+<form id="productForm">
+
+    <label for="item_name">Item Name:</label>
+    <input type="text" id="item_name" name="Item_Name" required>
+
+    <label for="item_desc">Item Description:</label>
+    <input type="text" id="item_desc" name="Item_Description">
+
+    <label for="item_price">Price:</label>
+    <input type="number" id="item_price" name="Item_Price" step="0.01" required>
+
+    <label for="item_qty">Quantity:</label>
+    <input type="number" id="item_qty" name="Item_Qty" required>
+
+    <button type="submit">Submit</button>
+
+</form>
+
+<script>
+    document.getElementById('productForm').addEventListener('submit', function(event) {
+        event.preventDefault();  // Prevent the form from submitting the traditional way
+
+        // Gather form data
+        const formData = {
+            Item_Name: document.getElementById('item_name').value,
+            Item_Description: document.getElementById('item_desc').value,
+            Item_Price: parseFloat(document.getElementById('item_price').value),
+            Item_Qty: parseInt(document.getElementById('item_qty').value)
+        };
+
+        // Determine whether to create or update
+        const apiUrl = '/api/products/add';  // Adjust this URL based on your API route
+
+        // Send data to the API
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+            // Optionally, redirect or update the UI based on the response
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    });
+</script>
+{%endblock%}

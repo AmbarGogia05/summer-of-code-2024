@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from config import Config 
 import psycopg2 
 import os
@@ -21,6 +21,11 @@ def create_app():
 
     @app.route('/test/')
     def test_page():
-        return '<h1>Testing the Flask Application Factory Pattern</h1>'
-
+        return render_template("product_add.html")
+    
+    @app.route('/clear_db')
+    def clear():
+        db.drop_all()
+        db.create_all()
+        return "DB CLEARED"
     return app
