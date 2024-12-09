@@ -10,7 +10,7 @@ from .Products.product_update import ProductUpdateResource
 api_blueprint = Blueprint('api', __name__)
 api = Api(api_blueprint)
 
-api.add_resource(ProductGetResource, '/products/<int:Item_SKU>')
+api.add_resource(ProductGetResource, '/products/get')
 api.add_resource(ProductCreateResource, '/products/add')
 api.add_resource(ProductDeleteResource, '/products/delete')
 api.add_resource(ProductUpdateResource, '/products/update')
@@ -26,3 +26,7 @@ def product_update():
 @api_blueprint.route('/products/delete')
 def product_delete():
     return render_template("product_delete.html")
+
+@api_blueprint.route('/products/view', methods=['GET'])
+def product_query():
+    return render_template("product_get.html")

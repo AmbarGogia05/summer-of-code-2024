@@ -1,0 +1,51 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<h1>{% block title %} View Inventory {% endblock %}</h1>
+
+<form id="QueryForm">
+    <label for="item_sku">Item SKU:</label>
+    <input type="text" id="item_sku" name="Item_SKU">
+
+    <label for="item_name">Item Name:</label>
+    <input type="text" id="item_name" name="Item_Name">
+
+    <button type="submit">Submit</button>
+</form>
+
+<script>
+    document.getElementById('QueryForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const itemSKU = document.getElementById('item_sku').value;
+        const itemName = document.getElementById('item_name').value;
+
+        let apiUrl = '/api/products/get?';
+        if (itemSKU) apiUrl += `Item_SKU=${encodeURIComponent(itemSKU)}&`;
+        if (itemName) apiUrl += `Item_Name=${encodeURIComponent(itemName)}`;
+
+        fetch(apiUrl, { method: 'GET' })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(errText => {
+                        throw new Error(`Error: ${response.status} - ${errText}`);
+                    });
+                }
+                return response.json(); // Only parse JSON if the response is OK
+            })
+            .then(data => {
+                console.log('Success:', data);
+                const messageContainer = document.getElementById('messageContainer');
+                messageContainer.innerHTML = `<div class="alert alert-success" role="alert">${ JSON.stringify(data.message) }</div>`;
+                // messageContainer.innerHTML = `<div class="alert alert-success" role="alert">${ data.message || 'Product displayed successfully!'}</div>`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const messageContainer = document.getElementById('messageContainer');
+                messageContainer.innerHTML = `<div class="alert alert-danger" role="alert">An error occurred: ${error.message}</div>`;
+            });
+    });
+</script>
+
+<div id="messageContainer"></div>
+{%endblock%}
