@@ -1,0 +1,30 @@
+{%extends 'base.html'%}
+{%block title%}Query{%endblock%}
+{% block content %}
+
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Products</h1>
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+                {% for product in prod_list %}
+                <tr>
+                    <td>{{ product.Item_SKU }}</td>
+                    <td>{{ product.Item_Name }}</td>
+                    <td>{{ product.Item_Description }}</td>
+                    <td>₹{{ product.Item_Price }}</td>
+                    <td>{{ product.Item_Qty }}</td>
+                </tr>
+                {% endfor %}
+        </tbody>
+    </table>
+</div>
+{%endblock%}

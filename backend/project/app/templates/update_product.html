@@ -1,0 +1,27 @@
+{%extends 'base.html'%}
+
+{% block content %}
+
+<h1>{%block title%}Update Product{%endblock%}</h1>
+
+
+<form action="{{ url_for('product.update_product') }}" method="POST">
+    <input type="number" name="sku" placeholder="Product SKU" required>
+    <input type="text" name="name" placeholder="Product Name">
+    <input type="text" name="desc" placeholder="Product Description">
+    <input type="number" name="price" placeholder="Product Price">
+    <input type="number" name="qty" placeholder="Product Quantity">
+    <button type="submit">Update Product</button>
+</form>
+
+{% if product %}
+    <p>
+        Item SKU: {{product.Item_SKU}}<br>
+        Item Name: {{product.Item_Name}}<br>
+        Item Description: {{product.Item_Description}}<br>
+        Item Price: {{product.Item_Price}}<br>
+        Item Quantity: {{product.Item_Qty}}<br>
+
+    </p>
+{%endif%}
+{%endblock%}
