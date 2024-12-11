@@ -1,20 +1,67 @@
 from . import db
-from sqlalchemy import Column, String, Integer, Float, Boolean, Date 
+from sqlalchemy import Column, String, Integer, Float, Boolean, Date, CheckConstraint
 import re
+import random
+import string
+from werkzeug.security import generate_password_hash, check_password_hash
 
 class Customer(db.Model):
     __tablename__ = "Customer"
 
-    c_ID = Column(Integer, primary_key=True)
+    c_ID = Column(String(15), primary_key=True)
     c_Name = Column(String(100), nullable=False)
     c_Email = Column(String(100), nullable=False, index=True)
     c_Contact = Column(String(10), nullable=False)
+    c_Password = Column("password", String(200), nullable=False)
+    role = Column(String(10), default='customer', nullable=False)
+    c_isActive = Column(Boolean, default=True, nullable=False)
+    __table_args__ =(
+        CheckConstraint("role IN ('customer')", name="check_role_values")
+    )
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)  # Call the base constructor
+        self.generate_id()  # Automatically generate a unique ID upon initialization
 
-    def validate_email(self):
-        if not re.match(r"[^@]+@[^@]+\.[^@]+", self.c_Email):
+    def generate_id(self):
+        while True:
+            random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+            new_id = f'CTM-RND-{random_string}'
+            # Check if the generated ID already exists
+            if not Customer.query.filter_by(c_ID=new_id).first():
+                self.c_ID = new_id
+                break
+
+    def validate_email(email):
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
             raise ValueError("Invalid Email Address")
-    def validate_phone_number(self):
-        if isinstance(self.c_Contact, str) and len(self.c_Contact) == 10 and self.c_Contact.isdigit():
+    def validate_phone_number(contact):
+        if isinstance(contact, str) and len(contact) == 10 and contact.isdigit():
             return True
         else:
-            raise ValueError(f"Invalid phone number: {self.c_Contact}. It must be a string of exactly 10 digits.")
+            raise ValueError(f"Invalid phone number: {contact}. It must be a string of exactly 10 digits.")
+
+    @property
+    def is_authenticated(self):
+        return True
+
+    @property
+    def is_active(self):
+        return self.c_isActive
+
+    @property
+    def is_anonymous(self):
+        return False
+    
+    def get_id(self):
+        return str(self.c_ID)  # Ensure this returns a string
+
+    @property   
+    def password(self):
+        raise AttributeError("Password is not readable")
+    
+    @password.setter
+    def password(self, plain_password):
+        self.c_Password = generate_password_hash(plain_password)
+
+    def check_password(self, plain_password):
+        return check_password_hash(self.c_Password, plain_password)

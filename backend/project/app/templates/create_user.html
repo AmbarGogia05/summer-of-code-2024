@@ -1,0 +1,24 @@
+{%extends 'base.html'%}
+
+{% block content %}
+
+<h1>{%block title%}Add New User{%endblock%}</h1>
+
+
+<form action="{{ url_for('staff.add_staff') }}" method="POST">
+    <input type="text" name="name" placeholder="Name" required>
+    <input type="text" name="email" placeholder="Email ID" required>
+    <input type="text" name="contact" placeholder="Contact Number" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <input type="hidden" name="is_admin" value="0"> <!-- Default value -->
+    <label>
+        <input type="checkbox" name="is_admin" value="1"> Make Admin
+    </label>
+    <input type="hidden" name="is_approved" value="0"> <!-- Default value -->
+    <label>
+        <input type="checkbox" name="is_approved" value="1"> Approval Status
+    </label>
+    <button type="submit">Add User</button>
+</form>
+
+{%endblock%}

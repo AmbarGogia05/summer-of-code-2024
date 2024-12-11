@@ -7,6 +7,12 @@
 <form action="{{ url_for('product.product_view') }}" method="POST">
     <input type="text" name="sku" placeholder="Search by SKU">
     <input type="text" name="name" placeholder="Search by Name">
+    <label>Sort By:</label>
+    <select name="sort_by" multiple>
+        <option value="Item_SKU">SKU</option>
+        <option value="Item_Name">Name</option>
+        <option value="Item_Price">Price</option>
+    </select>
     <button type="submit">Find Product(s)</button>
 </form>
 
@@ -41,5 +47,8 @@
         </tbody>
     </table>
 </div>
-
+<div>
+    {{ pagination.info }}
+    {{ pagination.links }}
+</div>
 {%endblock%}
