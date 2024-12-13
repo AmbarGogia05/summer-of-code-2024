@@ -55,8 +55,8 @@ def signup():
         try:
             Customer.validate_email(email)
             Customer.validate_phone_number(contact)
-        except ValueError:
-            flash('Invalid contact or email!')
+        except ValueError as e:
+            flash(str(e), 'error')
             return redirect(url_for('customer.signup'))
         
         new_member = Customer(c_Email=email, c_Name=name, c_Contact=contact)
@@ -80,3 +80,41 @@ def home():
         flash('Customer authentication needed!')
         if current_user.role == 'staff':
             return redirect(url_for('staff.staff_home'))
+
+@customer_blueprint.route('/update_profile/', methods=['GET', 'POST'])
+@login_required
+def profile_update():
+    if current_user.role == 'customer':
+        if request.method == 'POST':
+            email = request.form('email')
+            name = request.form('name')
+            contact = request.form('contact')
+
+            if email:
+                try:
+                    Customer.validate_email(email)
+                    current_user.c_Email = email
+                except ValueError as e:
+                    flash(str(e), 'error')
+                    return redirect(url_for('customer.profile_update'))
+            
+            if name:
+                current_user.c_Name = name
+            
+            if contact:
+                try:
+                    Customer.validate_phone_number(contact)
+                    current_user.c_Contact = contact
+                except ValueError as e:
+                    flash(str(e), 'error')
+                    return redirect(url_for('customer.profile_update'))
+                
+            db.session.commit()
+            flash('Profile updated!')
+            return redirect(url_for('customer.profile_update'))
+        elif request.method == 'GET':
+            return render_template('update_profile.html', user = current_user)
+    else:
+        flash('Not logged in as a customer!')
+        return redirect(url_for('customer.login'))
+    

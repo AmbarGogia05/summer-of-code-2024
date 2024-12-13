@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, url_for, redirect, request, flash, session
 from app.models import db
 from app.models.staff import Staff
+from app.models.customer import Customer
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_paginate import Pagination, get_page_args
 
@@ -53,8 +54,8 @@ def add_staff():
                 try:
                     Staff.validate_email(email)
                     Staff.validate_phone_number(contact)
-                except ValueError:
-                    flash('Invalid contact or email!')
+                except ValueError as e:
+                    flash(str(e), 'error')
                     return redirect(url_for('staff.add_staff'))
                 
                 new_member = Staff(s_Email=email, s_Name=name, s_Contact=contact, s_isAdmin=admin_status, s_isApproved=approval_status)
@@ -111,24 +112,166 @@ def logout():
 @staff_blueprint.route('/view_staff/', methods=['GET', 'POST'])
 @login_required
 def staff_view():
-    page = request.args.get('page', 1, type=int)  # Current page number, gives default value 1
-    per_page = 9  # Number of items per page
+    if current_user.role == 'staff':
+        page = request.args.get('page', 1, type=int)  # Current page number, gives default value 1
+        per_page = 9  # Number of items per page
 
-    if request.method=='POST':
-        ID = request.form['ID']
+        if request.method=='POST':
+            ID = request.form['ID']
 
-        if ID:
-            staff = Staff.query.get(ID)
-            if staff:
-                staff_list = [staff]
-                return render_template('staff_query_result.html', staff_list = staff_list)
-            else:
-                flash('No staff member with given ID')
-                return redirect(url_for('staff.staff_view'))
+            if ID:
+                staff = Staff.query.get(ID)
+                if staff:
+                    staff_list = [staff]
+                    return render_template('staff_query_result.html', staff_list = staff_list)
+                else:
+                    flash('No staff member with given ID')
+                    return redirect(url_for('staff.staff_view'))
+        
+        if request.method=='GET':
+            staff_query = Staff.query.all()
+            total = len(staff_query)
+            members = staff_query[(page - 1) * per_page: page * per_page]
+            pagination = Pagination(page=page, total=total, per_page=per_page, css_framework='bootstrap4')
+            return render_template('view_staff.html', staff_list=members, pagination=pagination)
+    else:
+        flash('Not authorized!')
+        return redirect(url_for('customer.login'))
+
+
+@staff_blueprint.route('/view_customers/', methods=['GET', 'POST'])
+@login_required
+def customer_view():
+    if current_user.role == 'staff':
+        page = request.args.get('page', 1, type=int)  # Current page number, gives default value 1
+        per_page = 9  # Number of items per page
+
+        if request.method=='POST':
+            ID = request.form['ID']
+
+            if ID:
+                customer = Customer.query.get(ID)
+                if customer:
+                    return render_template('customer_query_result.html', customer=customer)
+                else:
+                    flash('No customer with given ID')
+                    return redirect(url_for('staff.customer_view'))
+        
+        if request.method=='GET':
+            customer_query = Customer.query.all()
+            total = len(customer_query)
+            customers = customer_query[(page - 1) * per_page: page * per_page]
+            pagination = Pagination(page=page, total=total, per_page=per_page, css_framework='bootstrap4')
+            return render_template('view_customers.html', customer_list=customers, pagination=pagination)
+    else:
+        flash('Not authorized!')
+        return redirect(url_for('customer.login'))
     
-    if request.method=='GET':
-        staff_query = Staff.query.all()
-        total = len(staff_query)
-        members = staff_query[(page - 1) * per_page: page * per_page]
-        pagination = Pagination(page=page, total=total, per_page=per_page, css_framework='bootstrap4')
-        return render_template('view_staff.html', staff_list=members, pagination=pagination)
+@staff_blueprint.route('/update_staff/', methods=['GET', 'POST'])
+@login_required
+def update_staff():
+    if current_user.role == 'staff' and current_user.s_isAdmin:
+        if request.method=='POST':
+            ID = request.form['ID']
+
+            member = Staff.query.get(ID)
+
+            if member:
+                Name = request.form['name']
+                Email = request.form['email']
+                Contact = request.form['contact']
+                isAdmin = request.form['admin']
+                isActive = request.form['active']
+                isApproved = request.form['approved']
+
+                if Name:
+                    member.s_Name = Name
+                if Email:
+                    try:
+                        member.validate_email(Email)
+                        member.s_Email = Email
+                    except ValueError as e:
+                        flash(str(e), 'error')
+                        return redirect(url_for('staff.update_staff'))
+                if Contact:
+                    try:
+                        member.validate_phone_number(Contact)
+                        member.s_Contact = Contact
+                    except ValueError as e:
+                        flash(str(e), 'error')
+                        return redirect(url_for('staff.update_staff'))
+                if isAdmin:
+                    member.s_isAdmin = isAdmin
+                if isActive:
+                    member.s_isActive = isActive
+                if isApproved:
+                    member.s_isApproved = isApproved
+                db.session.commit()
+                flash('Update successful')
+                return redirect(url_for('staff.update_staff'))
+            else:
+                flash('No such member of staff')
+                return redirect(url_for('staff.update_staff'))
+            
+        if request.method=='GET':
+            return render_template('update_staff.html')
+
+    else:
+        if current_user.role == 'staff' and not current_user.s_isAdmin:
+            flash('You are not authorized to update staff!')
+            return redirect(url_for('staff.staff_home'))
+        else:
+            flash('Not staff!')
+            return redirect(url_for('customer.home'))
+
+@staff_blueprint.route('/delete_staff/', methods=['GET', 'POST'])
+@login_required
+def delete_staff():
+    if current_user.role == 'staff' and current_user.s_isAdmin:
+        if request.method=='POST':
+            ID = request.form['ID']
+            member = Staff.query.get(ID)
+            if member:
+                db.session.delete(member)
+                db.session.commit()
+                flash('Deleted member!')
+                return redirect(url_for('staff.delete_staff'))
+            else:
+                flash('ID does not match!')
+                return redirect(url_for('staff.delete_staff'))
+        if request.method=='GET':
+            return render_template('delete_staff.html')
+
+    else:
+        if current_user.role == 'staff' and not current_user.s_isAdmin:
+            flash('You are not authorized to delete staff members!')
+            return redirect(url_for('staff.staff_home'))
+        else:
+            flash('Not staff!')
+            return redirect(url_for('customer.home'))
+        
+@staff_blueprint.route('/delete_customers/', methods=['GET', 'POST'])
+@login_required
+def delete_users():
+    if current_user.role == 'staff' and current_user.s_isAdmin:
+        if request.method=='POST':
+            ID = request.form['ID']
+            member = Customer.query.get(ID)
+            if member:
+                db.session.delete(member)
+                db.session.commit()
+                flash('Deleted member!')
+                return redirect(url_for('staff.delete_users'))
+            else:
+                flash('ID does not match!')
+                return redirect(url_for('staff.delete_users'))
+        if request.method=='GET':
+            return render_template('delete_users.html')
+
+    else:
+        if current_user.role == 'staff' and not current_user.s_isAdmin:
+            flash('You are not authorized to delete customers!')
+            return redirect(url_for('staff.staff_home'))
+        else:
+            flash('Not staff!')
+            return redirect(url_for('customer.home'))

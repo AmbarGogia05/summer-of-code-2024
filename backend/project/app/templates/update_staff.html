@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Update Staff{% endblock %}
+{% block content %}
+
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Update Staff Member</h1>
+    <form method="POST" action="{{ url_for('staff.update_staff') }}">
+        <div class="form-group">
+            <label for="ID">Staff ID</label>
+            <input type="text" id="ID" name="ID" class="form-control" placeholder="Enter Staff ID" required>
+        </div>
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" class="form-control" placeholder="Enter Name">
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" class="form-control" placeholder="Enter Email">
+        </div>
+        <div class="form-group">
+            <label for="contact">Contact</label>
+            <input type="text" id="contact" name="contact" class="form-control" placeholder="Enter Contact">
+        </div>
+        <div class="form-group">
+            <label for="admin">Admin</label>
+            <select id="admin" name="admin" class="form-control">
+                <option value="" selected>Choose...</option>
+                <option value="True">Yes</option>
+                <option value="False">No</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="active">Active</label>
+            <select id="active" name="active" class="form-control">
+                <option value="" selected>Choose...</option>
+                <option value="True">Yes</option>
+                <option value="False">No</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="approved">Approved</label>
+            <select id="approved" name="approved" class="form-control">
+                <option value="" selected>Choose...</option>
+                <option value="True">Yes</option>
+                <option value="False">No</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Update</button>
+    </form>
+</div>
+
+{% endblock %}

@@ -18,9 +18,9 @@ class Staff(db.Model):
     s_Password = Column("password", String(200), nullable=False)
     role = Column(String(10), default='staff', nullable=False)
 
-    __table_args__ =(
-        CheckConstraint("role IN ('staff')", name="check_role_values")
-    )
+    stafftransactions = db.relationship("Transaction", back_populates="staff")
+
+    __table_args__ =(CheckConstraint("role IN ('staff')", name="check_role_values"),)
         
     def __init__(self, **kwargs):
         super().__init__(**kwargs)  # Call the base constructor
@@ -39,12 +39,13 @@ class Staff(db.Model):
     def validate_email(email):
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
             raise ValueError("Invalid Email Address")
-    
+        if Staff.query.filter_by(c_Email = email).first():
+            raise ValueError("Email address already in use!")
     def validate_phone_number(contact):
-        if isinstance(contact, str) and len(contact) == 10 and contact.isdigit():
-            return True
-        else:
+        if not (isinstance(contact, str) and len(contact) == 10 and contact.isdigit()):
             raise ValueError(f"Invalid phone number: {contact}. It must be a string of exactly 10 digits.")
+        if Staff.query.filter_by(c_Contact=contact).first():
+            raise ValueError("Contact already in use!")
 
     @property
     def is_authenticated(self):

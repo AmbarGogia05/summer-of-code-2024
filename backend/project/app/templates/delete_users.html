@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Customers{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Delete Customer</h2>
+    <form method="POST" action="{{ url_for('staff.delete_users') }}">
+        <div class="mb-3">
+            <label for="ID" class="form-label">Customer ID</label>
+            <input type="text" class="form-control" id="ID" name="ID" placeholder="Enter Customer ID" required>
+        </div>
+        <div class="d-grid">
+            <button type="submit" class="btn btn-danger">Delete Customer</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

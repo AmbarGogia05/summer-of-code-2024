@@ -9,7 +9,7 @@ product_blueprint = Blueprint('product', __name__)
 @product_blueprint.route('/create/', methods=['GET','POST'])
 @login_required
 def create_product(): #to create a new product
-    if current_user.s_isApproved:
+    if current_user.role == 'staff' and current_user.s_isApproved:
         if request.method=='POST':
             name = request.form['name']
             desc = request.form['desc']
@@ -22,17 +22,17 @@ def create_product(): #to create a new product
             try:
                 price = float(price)
                 qty = int(qty)
-            except ValueError:
-                flash('Invalid price or quantity!', 'error')
+                new_prod = Product(Item_Name= name, Item_Description=desc, Item_Price=price, Item_Qty=qty)
+                new_prod.validate_price_and_qty()
+            except ValueError as e:
+                flash(str(e), 'error')
                 return redirect(url_for('product.create_product'))
-
-            new_prod = Product(Item_Name= name, Item_Description=desc, Item_Price=price, Item_Qty=qty)
             db.session.add(new_prod)
             db.session.commit()
             session['new_prod_id'] = new_prod.Item_SKU
             flash('Product added successfully')
             return redirect(url_for('product.create_product'))
-    
+
         elif request.method=='GET':
             product = None
             if 'new_prod_id' in session:
@@ -40,13 +40,17 @@ def create_product(): #to create a new product
                 product = Product.query.get(prod_id)
             return render_template('create_product.html', product=product)
     else:
-        flash('You are not authorized to add products!')
-        return redirect(url_for('staff.staff_home'))
+        if current_user.role == 'staff' and not current_user.s_isApproved:
+            flash('You are not authorized to add products!')
+            return redirect(url_for('staff.staff_home'))
+        else:
+            flash('Not staff!')
+            return redirect(url_for('customer.home'))
 
 @product_blueprint.route('/delete/', methods=['GET','POST'])
 @login_required
 def delete_product():
-    if current_user.s_isApproved:
+    if current_user.role == 'staff' and current_user.s_isApproved:
         if request.method=='POST':
             sku = request.form['sku']
 
@@ -64,13 +68,16 @@ def delete_product():
         elif request.method=='GET':
             return render_template('delete_product.html')
     else:
-        flash('You are not authorized to delete products!')
-        return redirect(url_for('staff.staff_home'))
-
+        if current_user.role == 'staff' and not current_user.s_isApproved:
+            flash('You are not authorized to delete products!')
+            return redirect(url_for('staff.staff_home'))
+        else:
+            flash('Not staff!')
+            return redirect(url_for('customer.home'))
 @product_blueprint.route('/update/', methods=['GET', 'POST'])
 @login_required
 def update_product():
-    if current_user.s_isApproved:
+    if current_user.role == 'staff' and current_user.s_isApproved:
         if request.method=='POST':
             sku = request.form['sku']
 
@@ -86,10 +93,23 @@ def update_product():
                     prod.Item_Name = name
                 if desc:
                     prod.Item_Description = desc
-                if price:
-                    prod.Item_Price = price
-                if qty:
-                    prod.Item_Qty = qty
+                try:
+                    if price:
+                        try:
+                            price = float(price)
+                            prod.Item_Price = price
+                        except ValueError:
+                            raise ValueError
+                    if qty:
+                        try:
+                            qty = int(qty)
+                            prod.Item_Qty = qty
+                        except ValueError:
+                            raise ValueError
+                    prod.validate_price_and_qty()
+                except ValueError as e:
+                    flash(str(e), 'error')
+                    return redirect(url_for('product.update_product'))
                 session['prod_id'] = sku
                 db.session.commit()
                 flash('Update successful')
@@ -105,8 +125,12 @@ def update_product():
                 prod = Product.query.get(id)
             return render_template('update_product.html', product=prod)
     else:
-        flash('You are not authorized to update products!')
-        return redirect(url_for('staff.staff_home'))
+        if current_user.role == 'staff' and not current_user.s_isApproved:
+            flash('You are not authorized to update products!')
+            return redirect(url_for('staff.staff_home'))
+        else:
+            flash('Not staff!')
+            return redirect(url_for('customer.home'))
 
 
 @product_blueprint.route('/view/', methods=['GET', 'POST'])

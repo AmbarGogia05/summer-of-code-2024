@@ -9,15 +9,19 @@
 </head>
 
 <body>
-    <ul>
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <ul>
+            {% for category, message in messages %}
+                {% if category %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% else %}
+                <li>{{ message }}</li>  <!-- No category provided -->
             {% endif %}
-        {% endwith %}
-    </ul>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
     {% block content %}
     {% endblock %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Staff{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Delete Staff Member</h2>
+    
+    <!-- Delete Staff Form -->
+    <form method="POST" action="{{ url_for('staff.delete_staff') }}">
+        <div class="mb-3">
+            <label for="ID" class="form-label">Staff ID</label>
+            <input type="text" class="form-control" id="ID" name="ID" placeholder="Enter Staff ID" required>
+        </div>
+        <div class="d-grid">
+            <button type="submit" class="btn btn-danger">Delete Staff Member</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
