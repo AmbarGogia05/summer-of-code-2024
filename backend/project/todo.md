@@ -7,33 +7,10 @@
    - Generate API documentation using tools like Swagger or Flask-RESTPlus.
    - Document frontend interfaces and backend architecture for future reference.
 
-4. **Error Handling:**
-   - Implement error handling mechanisms for API responses (e.g., 404 Not Found, 500 Internal Server Error).
-   - Use Flask error handlers to provide meaningful error messages.
-
 5. **Security Measures:**
    - Apply security best practices such as input validation, SQL injection prevention, and CSRF protection.
-   - Ensure sensitive data (like passwords) are stored securely using hashed values.
+
 ## Yet to build home pages for staff, admin, customers
-
-### Task 3: Transaction Management
-
-#### Implementing Transaction CRUD Operations
-2. **Create API Endpoints for Transactions:**
-   - Design and implement RESTful API endpoints for managing transactions (`/transactions`).
-   - Define endpoints for Create, Read, Update, and Delete operations.
-   - Ensure proper HTTP methods (`GET`, `POST`, `PUT`, `DELETE`) are used as per REST conventions.
-
-3. **CRUD Operations:**
-   - Implement functions/methods to handle:
-     - Create a new transaction.
-     - Retrieve a list of all transactions or a specific transaction by ID.
-     - Update an existing transaction.
-     - Delete a transaction from the database.
-
-### Task 4: Secure Password Handling
-3. **Session Management:**
-   - Securely store session information and handle session expiration. --> WILL SEE IF IMPROVEMENTS NEEDED
 
 ### Bonus Tasks for Week 3
 
@@ -59,3 +36,37 @@
 6. **Transaction Analytics:** -- DUDE
    - Implement analytics for transactions to provide insights into sales and performance.
    - Create reports for transaction history, sales trends, and staff performance.
+
+### Task 1: PoS Interface and Transactions
+
+#### Ensuring Proper Functioning and Integration of API Endpoints
+
+1. **API Endpoint Integration:**
+   - Ensure all existing API endpoints for products, users, staff, and transactions are properly integrated.
+   - Verify that transactions update the corresponding database fields accurately.
+
+### Task 3: Invoice Generation
+
+#### Generating PDF Invoices
+
+1. **Library Selection:**
+   - Choose a library for PDF generation: ReportLab or WeasyPrint.
+   - Install the chosen library using `pip install reportlab` or `pip install weasyprint`.
+
+2. **PDF Invoice Generation:**
+   - Implement functionality to generate PDF invoices for each transaction.
+   - Ensure invoices contain all necessary details (e.g., transaction ID, product details, total amount).
+
+3. **Local Storage:**
+   - Store generated PDF invoices locally for now.
+   - Implement functionality to retrieve and display these invoices as needed.
+
+### Task 4: Transaction History
+
+#### Developing Endpoints for Transaction History
+
+1. **Transaction History Endpoints:**
+   - Create endpoints to retrieve transaction history (`/transactions/history`).
+
+2. **Secure Access:**
+   - Ensure secure access to transaction history data, possibly by restricting access to authenticated and authorized staff.

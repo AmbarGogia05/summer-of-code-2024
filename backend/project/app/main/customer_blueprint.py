@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, url_for, redirect, request, flash,
 from app.models import db
 from app.models.customer import Customer
 from flask_login import login_user, logout_user, login_required, current_user
+from flask_jwt_extended import create_access_token
 
 customer_blueprint = Blueprint('customer', __name__)
 
@@ -20,6 +21,8 @@ def login():
         if member.check_password(password):
             login_user(member)  # Use Flask-Login to log the user in
             flash('Login successful')
+            access_token = create_access_token(identity={'id': member.c_ID, 'role': member.role})
+            session['jwt'] = access_token
             return redirect(url_for('customer.home'))
                             
         else:

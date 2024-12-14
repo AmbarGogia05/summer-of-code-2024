@@ -4,6 +4,7 @@ from app.models.staff import Staff
 from app.models.customer import Customer
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_paginate import Pagination, get_page_args
+from flask_jwt_extended import create_access_token
 
 staff_blueprint = Blueprint('staff', __name__)
 
@@ -22,6 +23,8 @@ def login():
         if member.check_password(password):
             login_user(member)  # Use Flask-Login to log the user in
             flash('Login successful')
+            access_token = create_access_token(identity={'id': member.s_ID, 'role': member.role, 'isadmin': member.s_isAdmin})
+            session['jwt'] = access_token
             return redirect(url_for('staff.admin_home' if member.s_isAdmin else 'staff.staff_home'))  # yet to create admin_home and staff_home, do check
 
         else:

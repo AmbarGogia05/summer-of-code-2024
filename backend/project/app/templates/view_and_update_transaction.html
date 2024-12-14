@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>View and Update Transaction</h1>
+<form action="{{ url_for('transaction.update_transaction') }}" method="POST" onsubmit="return validateForm()">
+    <label for="transaction-id">Transaction ID:</label>
+    <input type="text" id="transaction-id" name="t_ID" value="{{ transaction.t_id }}" readonly>
+
+    <label for="customer-id">Customer ID:</label>
+    <input type="number" id="customer-id" name="c_ID" value="{{ transaction.c_id }}" {% if not jwt_identity['isadmin'] %}readonly{% endif %}>
+
+    <label for="staff-id">Staff ID:</label>
+    <input type="number" id="staff-id" name="s_ID" value="{{ transaction.s_id }}" readonly>
+
+    <label for="transaction-amount">Transaction Amount:</label>
+    <input type="number" id="transaction-amount" name="transaction_amount" value="{{ transaction.total_amount }}" readonly>
+
+    <h2>Items</h2>
+    <div id="product-list">
+        {% for item in transaction_items %}
+        <div class="product-group">
+            <label>SKU:</label>
+            <input type="text" name="sku[]" value="{{ item.product_SKU }}" readonly>
+            <label>Quantity:</label>
+            <input type="number" name="quantity[]" value="{{ item.quantity }}" {% if not jwt_identity['isadmin'] %}readonly{% endif %}>
+            {% if jwt_identity['isadmin'] %}
+            <span class="remove-btn" onclick="removeProduct(this)">Remove</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if jwt_identity['isadmin'] %}
+    <button type="button" onclick="addProduct()">Add Product</button>
+    <br><br>
+    <button type="submit">Update Transaction</button>
+    {% endif %}
+</form>
+
+<script>
+    // Function to add a new product input field
+    function addProduct() {
+        const productList = document.getElementById('product-list');
+        
+        const newProductGroup = document.createElement('div');
+        newProductGroup.classList.add('product-group');
+        
+        const skuInput = document.createElement('input');
+        skuInput.type = 'text';
+        skuInput.name = 'sku[]';
+        skuInput.placeholder = 'Enter product SKU';
+        skuInput.required = true;
+
+        const quantityInput = document.createElement('input');
+        quantityInput.type = 'number';
+        quantityInput.name = 'quantity[]';
+        quantityInput.placeholder = 'Enter quantity';
+        quantityInput.required = true;
+
+        const removeBtn = document.createElement('span');
+        removeBtn.classList.add('remove-btn');
+        removeBtn.innerText = 'Remove';
+        removeBtn.onclick = function() {
+            removeProduct(removeBtn);
+        };
+
+        newProductGroup.append(skuInput, quantityInput, removeBtn);
+        productList.appendChild(newProductGroup);
+    }
+
+    // Function to remove a product input field
+    function removeProduct(button) {
+        button.parentElement.remove();
+    }
+
+    // Validate the form before submission
+    function validateForm() {
+        const productList = document.getElementById('product-list');
+        if (productList.children.length === 0) {
+            alert('Please add at least one product.');
+            return false;
+        }
+        return true;
+    }
+</script>
+{% endblock %}

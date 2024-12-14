@@ -1,0 +1,9 @@
+{% extends 'base.html'%}
+
+{% block content %}
+{%block title%}<h1>Find a Transaction</h1>{%endblock%}
+<form action="{{ url_for('transaction.find_transaction') }}" method="POST">
+    <input type="number" name="t_ID" placeholder="Transaction ID" required>
+    <button type="submit">Find Transaction</button>
+</form>
+{%endblock%}

@@ -1,0 +1,63 @@
+{%extends 'base.html'%}
+{%block content%}{%block title%}<h1>Dynamic Transaction Form</h1>{%endblock%}
+    <form action="/submit-transaction" method="post" id="transaction-form">
+        <input type="text" name="c_ID" placeholder="Enter customer ID" value="{{ transaction_data.get('c_ID', '') }}" required>
+        
+        <div id="product-list">
+            <div class="product-group">
+                {% for index in range(transaction_data.get('skus', []).|length) %}
+                <input type="text" name="sku[]" value="{{ transaction_data['skus'][index] }}" placeholder="SKU" required>
+                <input type="number" name="quantity[]" value="{{ transaction_data['quantities'][index] }}" placeholder="Quantity" required>
+                <span class="remove-btn" onclick="removeProduct(this)">Remove</span>
+                {% endfor %}
+            </div>
+        </div>
+        <button type="button" onclick="addProduct()">Add Product</button>
+        <br><br>
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        // Function to add a new product input field
+        function addProduct() {
+            const productList = document.getElementById('product-list');
+            
+            // Create a new product input group
+            const newProductGroup = document.createElement('div');
+            newProductGroup.classList.add('product-group');
+            
+            // Add input field
+            const skuInput = document.createElement('input');
+            skuInput.type = 'number';
+            skuInput.name = 'sku[]';
+            skuInput.placeholder = 'Enter product SKU';
+            skuInput.required = true;
+            newProductGroup.appendChild(skuInput);
+
+            const quantityInput = document.createElement('input');
+            quantityInput.type = 'number';
+            quantityInput.name = 'quantity[]';
+            quantityInput.placeholder = 'Enter quantity';
+            quantityInput.required = true;
+            newProductGroup.appendChild(quantityInput);
+            
+            // Add "Remove" button
+            const removeBtn = document.createElement('span');
+            removeBtn.classList.add('remove-btn');
+            removeBtn.innerText = 'Remove';
+            removeBtn.onclick = function() {
+                removeProduct(removeBtn);
+            };
+            newProductGroup.appendChild(removeBtn);
+            
+            // Append the new group to the list
+            productList.appendChild(newProductGroup);
+        }
+
+        // Function to remove a product input field
+        function removeProduct(button) {
+            const productGroup = button.parentElement;
+            productGroup.remove();
+        }
+    </script>
+{%endblock%}
