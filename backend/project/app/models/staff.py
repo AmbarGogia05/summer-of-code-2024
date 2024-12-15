@@ -24,7 +24,8 @@ class Staff(db.Model):
         
     def __init__(self, **kwargs):
         super().__init__(**kwargs)  # Call the base constructor
-        self.generate_id()  # Automatically generate a unique ID upon initialization
+        if self.s_ID == None:
+            self.generate_id()  # Automatically generate a unique ID upon initialization
 
     def generate_id(self):
         while True:
@@ -39,12 +40,12 @@ class Staff(db.Model):
     def validate_email(email):
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
             raise ValueError("Invalid Email Address")
-        if Staff.query.filter_by(c_Email = email).first():
+        if Staff.query.filter_by(s_Email = email).first():
             raise ValueError("Email address already in use!")
     def validate_phone_number(contact):
         if not (isinstance(contact, str) and len(contact) == 10 and contact.isdigit()):
             raise ValueError(f"Invalid phone number: {contact}. It must be a string of exactly 10 digits.")
-        if Staff.query.filter_by(c_Contact=contact).first():
+        if Staff.query.filter_by(s_Contact=contact).first():
             raise ValueError("Contact already in use!")
 
     @property

@@ -1,11 +1,12 @@
 {%extends 'base.html'%}
-{%block content%}{%block title%}<h1>Dynamic Transaction Form</h1>{%endblock%}
+<h1>{%block content%}{%block title%}Dynamic Transaction Form{%endblock%}</h1>
     <form action="/submit-transaction" method="post" id="transaction-form">
         <input type="text" name="c_ID" placeholder="Enter customer ID" value="{{ transaction_data.get('c_ID', '') }}" required>
         
         <div id="product-list">
             <div class="product-group">
-                {% for index in range(transaction_data.get('skus', []).|length) %}
+                {% for index in range(transaction_data['skus']|length) %}
+
                 <input type="text" name="sku[]" value="{{ transaction_data['skus'][index] }}" placeholder="SKU" required>
                 <input type="number" name="quantity[]" value="{{ transaction_data['quantities'][index] }}" placeholder="Quantity" required>
                 <span class="remove-btn" onclick="removeProduct(this)">Remove</span>

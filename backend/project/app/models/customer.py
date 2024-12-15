@@ -23,7 +23,8 @@ class Customer(db.Model):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)  # Call the base constructor
-        self.generate_id()  # Automatically generate a unique ID upon initialization
+        if self.c_ID == None:
+            self.generate_id()  # Automatically generate a unique ID upon initialization
 
     def generate_id(self):
         while True:

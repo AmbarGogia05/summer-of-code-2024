@@ -1,11 +1,11 @@
-from flask import Blueprint, render_template, url_for, redirect, request, flash, session
+from flask import Blueprint, render_template, url_for, redirect, request, flash, session, make_response
 from app.models import db
 from app.models.staff import Staff
 from app.models.customer import Customer
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_paginate import Pagination, get_page_args
-from flask_jwt_extended import create_access_token
-
+from flask_jwt_extended import create_access_token, set_access_cookies, unset_jwt_cookies
+from datetime import timedelta
 staff_blueprint = Blueprint('staff', __name__)
 
 @staff_blueprint.route('/login/', methods=['GET','POST'])
@@ -23,25 +23,34 @@ def login():
         if member.check_password(password):
             login_user(member)  # Use Flask-Login to log the user in
             flash('Login successful')
-            access_token = create_access_token(identity={'id': member.s_ID, 'role': member.role, 'isadmin': member.s_isAdmin})
-            session['jwt'] = access_token
-            return redirect(url_for('staff.admin_home' if member.s_isAdmin else 'staff.staff_home'))  # yet to create admin_home and staff_home, do check
+            identity = member.s_ID  # Set `sub` as a string
+            additional_claims = {
+                "role": member.role,
+                "isadmin": member.s_isAdmin
+            }
+            
+            access_token = create_access_token(identity=identity, additional_claims=additional_claims, expires_delta=timedelta(hours=1))
 
+            response = make_response(redirect(url_for('staff.admin_home' if member.s_isAdmin else 'staff.staff_home')))
+            # Set the JWT as a cookie
+            set_access_cookies(response, access_token)
+            
+            return response  # Return the response with the redirect and cookie
         else:
             flash('Incorrect email ID or password')
             return redirect(url_for('staff.login'))
         
     if request.method=='GET':
-        if current_user.role == 'staff':
-            if current_user.is_authenticated:
+        if current_user.is_authenticated:
+            if current_user.role == 'staff':
                 flash('User already logged in')
                 return redirect(url_for('staff.admin_home' if current_user.s_isAdmin else 'staff.staff_home'))
-            else:
-                return render_template('login.html')
-        elif current_user.role =='customer':
-            flash('Access Denied')
-            return redirect(url_for('customer.home'))
-
+            elif current_user.role == 'customer':
+                flash('Access Denied')
+                return redirect(url_for('customer.home'))
+        else:
+            return render_template('login.html')
+        
 @staff_blueprint.route('/add-staff/', methods=['GET', 'POST'])
 @login_required
 def add_staff():
@@ -60,12 +69,13 @@ def add_staff():
                 except ValueError as e:
                     flash(str(e), 'error')
                     return redirect(url_for('staff.add_staff'))
-                
+                admin_status = int(admin_status)
+                approval_status = int(approval_status)
                 new_member = Staff(s_Email=email, s_Name=name, s_Contact=contact, s_isAdmin=admin_status, s_isApproved=approval_status)
 
                 new_member.password = password #hashes and stores
 
-                db.session.add()
+                db.session.add(new_member)
                 db.session.commit()
                 flash('New member added to staff!')
                 return redirect(url_for("staff.add_staff"))
@@ -79,16 +89,17 @@ def add_staff():
         flash('Access Denied')
         return redirect(url_for('customer.home'))
     
-@staff_blueprint.route('/staff_home')
+@staff_blueprint.route('/staff_home/')
 @login_required
 def staff_home():
+
     if current_user.role == 'staff':
         return render_template('staff_home.html', user=current_user)
     else:
         flash('Access Denied')
         return redirect(url_for('customer.home'))
 
-@staff_blueprint.route('/admin_home')
+@staff_blueprint.route('/admin_home/')
 @login_required
 def admin_home():
     if current_user.role == 'staff':
@@ -101,13 +112,15 @@ def admin_home():
         flash('Access Denied')
         return redirect(url_for('customer.home'))
 
-@staff_blueprint.route('/logout')
+@staff_blueprint.route('/logout/')
 @login_required
 def logout():
     if current_user.role =='staff':
         logout_user()
+        response = redirect(url_for('staff.login'))
+        unset_jwt_cookies(response)
         flash('Logged out successfully!')
-        return redirect(url_for('staff.login'))
+        return response
     else:
         flash('Not staff member!')
         return redirect(url_for('customer.home'))
@@ -191,23 +204,26 @@ def update_staff():
                     member.s_Name = Name
                 if Email:
                     try:
-                        member.validate_email(Email)
+                        Staff.validate_email(Email)
                         member.s_Email = Email
                     except ValueError as e:
                         flash(str(e), 'error')
                         return redirect(url_for('staff.update_staff'))
                 if Contact:
                     try:
-                        member.validate_phone_number(Contact)
+                        Staff.validate_phone_number(Contact)
                         member.s_Contact = Contact
                     except ValueError as e:
                         flash(str(e), 'error')
                         return redirect(url_for('staff.update_staff'))
                 if isAdmin:
+                    isAdmin = int(isAdmin)
                     member.s_isAdmin = isAdmin
                 if isActive:
+                    isActive = int(isActive)
                     member.s_isActive = isActive
                 if isApproved:
+                    isApproved = int(isApproved)
                     member.s_isApproved = isApproved
                 db.session.commit()
                 flash('Update successful')
@@ -233,6 +249,9 @@ def delete_staff():
     if current_user.role == 'staff' and current_user.s_isAdmin:
         if request.method=='POST':
             ID = request.form['ID']
+            if ID == 'STF-RND-000001':
+                flash('User cannot be deleted!')
+                return redirect(url_for('staff.delete_staff'))
             member = Staff.query.get(ID)
             if member:
                 db.session.delete(member)

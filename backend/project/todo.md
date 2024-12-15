@@ -29,21 +29,10 @@
    - Implement logging to track authentication events (e.g., logins, logouts, failed login attempts).
    - Monitor staff activity and identify potential security threats.
 
-5. **Advanced Role Management:** -- DAMN
-   - Implement more complex role hierarchies and permissions.
-   - Allow dynamic role assignment and modification through the admin interface.
-
-6. **Transaction Analytics:** -- DUDE
+6. **Transaction Analytics:** -- NEED TO LEARN HOW
    - Implement analytics for transactions to provide insights into sales and performance.
    - Create reports for transaction history, sales trends, and staff performance.
 
-### Task 1: PoS Interface and Transactions
-
-#### Ensuring Proper Functioning and Integration of API Endpoints
-
-1. **API Endpoint Integration:**
-   - Ensure all existing API endpoints for products, users, staff, and transactions are properly integrated.
-   - Verify that transactions update the corresponding database fields accurately.
 
 ### Task 3: Invoice Generation
 

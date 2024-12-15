@@ -21,6 +21,13 @@ def create_app():
     migrate = Migrate(app, db) #start migration
     
     jwt = JWTManager(app)
+    with app.app_context():
+        adminindb = Staff.query.get('STF-RND-000001')
+        if not adminindb:
+            admin = Staff(s_ID='STF-RND-000001', s_Name='admin', s_Email='admin@example.com', s_isAdmin=True, s_Contact='9999999999')
+            admin.password = 'admin'
+            db.session.add(admin)
+            db.session.commit()
 
     app.register_blueprint(product_blueprint)
     app.register_blueprint(staff_blueprint, url_prefix='/staff/')
@@ -30,10 +37,14 @@ def create_app():
 
     @login_manager.user_loader
     def load_user(user_id):
-        if session['role'] == 'staff':
-            return Staff.query.get(user_id)
-        elif session['role'] == 'customer':
-            return Customer.query.get(user_id)
+        staff_user = Staff.query.get(user_id)
+        if staff_user:
+            return staff_user
+
+        customer_user = Customer.query.get(user_id)
+        if customer_user:
+            return customer_user
+
         return None
 
     @login_manager.unauthorized_handler
