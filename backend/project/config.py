@@ -10,3 +10,5 @@ class Config:
     JWT_ACCESS_COOKIE_PATH = '/'
     JWT_ACCESS_COOKIE_NAME = 'access_token_cookie'
     JWT_COOKIE_SECURE = False  # Set to True if using HTTPS
+    SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+    SENDGRID_SENDER_EMAIL='posservicesproject@gmail.com'

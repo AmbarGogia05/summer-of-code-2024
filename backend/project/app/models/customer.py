@@ -14,7 +14,7 @@ class Customer(db.Model):
     c_Contact = Column(String(10), nullable=False)
     c_Password = Column("password", String(200), nullable=False)
     role = Column(String(10), default='customer', nullable=False)
-    c_isActive = Column(Boolean, default=True, nullable=False)
+    c_isActive = Column(Boolean, default=False, nullable=False)
 
 
     customertransactions = db.relationship("Transaction", back_populates="customer")

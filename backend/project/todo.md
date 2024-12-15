@@ -13,13 +13,7 @@
 ## Yet to build home pages for staff, admin, customers
 
 ### Bonus Tasks for Week 3
-
-1. **Email Verification:**
-   - Send verification emails with unique tokens for account activation. --> HOW?
-
-2. **Password Reset:**
-   - Implement password reset functionality to allow staff to reset their passwords if they forget them. --> TO DO
-   - Send password reset emails with unique tokens for secure password updates. --> HOW?
+### Password reset for staff left, for customers functional already
 
 3. **Multi-Factor Authentication (MFA):** -- NEED TO LEARN HOW
    - Implement multi-factor authentication to enhance staff account security. 
