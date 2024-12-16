@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import re
 import random
 import string
+import pyotp
 
 class Staff(db.Model):
     __tablename__ = "Staff"
@@ -17,6 +18,8 @@ class Staff(db.Model):
     s_Contact = Column(String(10), nullable=False)
     s_Password = Column("password", String(200), nullable=False)
     role = Column(String(10), default='staff', nullable=False)
+    is_2fa_enabled = Column(Boolean, default=False)  # To track if 2FA is enabled
+    two_factor_secret = Column(String(16), nullable=True)  # To store TOTP secret
 
     stafftransactions = db.relationship("Transaction", back_populates="staff")
 
@@ -35,7 +38,6 @@ class Staff(db.Model):
             if not Staff.query.filter_by(s_ID=new_id).first():
                 self.s_ID = new_id
                 break
-
     
     def validate_email(email):
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
@@ -73,3 +75,13 @@ class Staff(db.Model):
 
     def check_password(self, plain_password):
         return check_password_hash(self.s_Password, plain_password)
+    
+    def enable_2fa(self):
+        self.two_factor_secret = pyotp.random_base32()
+        self.is_2fa_enabled = True
+        db.session.commit()
+
+    def disable_2fa(self):
+        self.two_factor_secret = None
+        self.is_2fa_enabled = False
+        db.session.commit()

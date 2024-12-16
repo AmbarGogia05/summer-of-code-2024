@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Enable Two-Factor Authentication{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Enable Two-Factor Authentication</h1>
+    
+    {% if qr_code_url %}
+        <p>Scan the QR code below using an authenticator app like Google Authenticator or Authy:</p>
+        <img src="{{ qr_code_url }}" alt="QR Code" class="img-fluid mb-3">
+        <p>Alternatively, you can manually enter this key into your authenticator app:</p>
+        <code class="d-block mb-3">{{ secret_key }}</code>
+        <p>After setting up your authenticator app, enter the code below to verify and enable 2FA:</p>
+    {% endif %}
+    
+    <form method="POST">
+        <div class="mb-3">
+            <label for="otp" class="form-label">Enter the code from your authenticator app:</label>
+            <input type="text" id="otp" name="otp" class="form-control" placeholder="Enter OTP" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Verify and Enable 2FA</button>
+    </form>
+
+    <a href="{{ url_for('staff.staff_home') }}" class="btn btn-secondary mt-3">Cancel and Return to Dashboard</a>
+</div>
+{% endblock %}

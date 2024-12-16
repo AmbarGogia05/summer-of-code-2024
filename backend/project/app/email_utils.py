@@ -1,15 +1,14 @@
 from flask import current_app
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
-
 import jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from config import Config
 
 def create_verification_token(email):
     token = jwt.encode({
         'email': email,
-        'exp': datetime.utcnow() + timedelta(days=1)  
+        'exp': datetime.now(timezone.utc) + timedelta(days=1)  
     }, Config.SENDGRID_API_KEY, algorithm='HS256') 
     return token
 
@@ -35,7 +34,7 @@ def send_verification_email(user_email, verification_link):
 def create_reset_token(email):
     token = jwt.encode({
         'email': email,
-        'exp': datetime.utcnow() + timedelta(minutes=15) 
+        'exp': datetime.now(timezone.utc) + timedelta(minutes=15) 
     }, Config.SENDGRID_API_KEY, algorithm='HS256')  
     return token
 

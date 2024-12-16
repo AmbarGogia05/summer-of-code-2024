@@ -6,7 +6,23 @@ from flask_jwt_extended import create_access_token, set_access_cookies, unset_jw
 from app.email_utils import send_verification_email, create_verification_token, create_reset_token, send_password_reset_email
 import jwt
 from config import Config
+from functools import wraps
 customer_blueprint = Blueprint('customer', __name__)
+
+def logout_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if current_user.is_authenticated:
+            flash('Please logout to proceed!')
+            if current_user.role == 'staff' and current_user.s_isAdmin == False:
+                return redirect(url_for('staff.staff_home'))
+            elif current_user.role == 'staff' and current_user.s_isAdmin:
+                return redirect(url_for('staff.admin_home'))
+            else:
+                return redirect(url_for('customer.home'))
+        return func(*args, **kwargs)
+    return decorated_view
+
 
 @customer_blueprint.route('/login/', methods=['GET', 'POST'])
 def login():
@@ -178,6 +194,7 @@ def verify_email(token):
     
 
 @customer_blueprint.route('/password_reset/<token>', methods=['GET', 'POST'])
+@logout_required
 def reset_password(token):
     try:
         # Decode the token
@@ -206,6 +223,7 @@ def reset_password(token):
         return redirect(url_for('customer.login'))
     
 @customer_blueprint.route('/password_reset_request/', methods=['GET', 'POST'])
+@logout_required
 def password_reset_request():
     if request.method == 'POST':
         email = request.form['email']
