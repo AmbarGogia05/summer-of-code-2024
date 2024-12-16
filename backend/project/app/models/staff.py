@@ -19,7 +19,7 @@ class Staff(db.Model):
     s_Password = Column("password", String(200), nullable=False)
     role = Column(String(10), default='staff', nullable=False)
     is_2fa_enabled = Column(Boolean, default=False)  # To track if 2FA is enabled
-    two_factor_secret = Column(String(16), nullable=True)  # To store TOTP secret
+    two_factor_secret = Column(String(32), nullable=True)  # To store TOTP secret
 
     stafftransactions = db.relationship("Transaction", back_populates="staff")
 

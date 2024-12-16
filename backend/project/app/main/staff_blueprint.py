@@ -13,6 +13,7 @@ from functools import wraps
 import pyotp
 import qrcode
 import secrets
+import os
 
 staff_blueprint = Blueprint('staff', __name__)
 
@@ -106,7 +107,7 @@ def verify_2fa(token):
 
     return render_template('verify_2fa.html', token=token)
 
-@staff_blueprint.route('/add-staff/', methods=['GET', 'POST'])
+@staff_blueprint.route('/add_staff/', methods=['GET', 'POST'])
 @login_required
 def add_staff():
     if current_user.role == 'staff':
@@ -408,43 +409,47 @@ def password_reset_request():
 @login_required
 def enable_2fa():
     user = current_user 
-    if user.role == 'staff' and not user.is_2fa_enabled:
-        if request.method == 'POST':
-            # Generate a new TOTP secret
-            user.two_factor_secret = pyotp.random_base32()
-            db.session.commit()
 
-            # Generate a QR code for the user
-            totp = pyotp.TOTP(user.two_factor_secret)
-            uri = totp.provisioning_uri(user.s_Email, issuer_name="PoSServices")
-            img = qrcode.make(uri)
-            img_path = f'static/qrcodes/{user.s_ID}.png'
-            img.save(img_path)
+    # Handle the GET request
+    if request.method == 'GET':
+        if user.role == 'staff':
+            if not user.is_2fa_enabled:
+                # Generate a new TOTP secret if not enabled
+                user.two_factor_secret = pyotp.random_base32()
+                db.session.commit()
 
-            flash("Scan the QR code and enter a generated code to complete setup.")
-            return render_template('enable_2fa.html', qr_code_url=img_path)  
+                # Generate a QR code for the user
+                totp = pyotp.TOTP(user.two_factor_secret)
+                uri = totp.provisioning_uri(user.s_Email, issuer_name="PoSServices")
+                img = qrcode.make(uri)
+                qr_code_directory = 'static/qrcodes'
+                os.makedirs(qr_code_directory, exist_ok=True)  # Create the directory if it doesn't exist
 
-        return render_template('enable_2fa.html')
-    elif user.role == 'staff' and user.is_2fa_enabled:
-        flash('Two-factor authentication is already enabled!')
-        return redirect(url_for('staff.staff_home'))
-    else:
-        flash('Not staff!', 'error')
-        return redirect(url_for('customer.home'))
+                img_path = f'C:/Users/Ambar/Desktop/summer-of-code-2024/backend/project/static/qrcodes/{user.s_ID}.png'
 
-@staff_blueprint.route('/verify_2fa_setup/', methods=['POST'])
-@login_required
-def verify_2fa_setup():
-    user = current_user 
-    code = request.form['otp']  
-    if user.two_factor_secret:
-        totp = pyotp.TOTP(user.two_factor_secret)
-        if totp.verify(code):
-            user.is_2fa_enabled = True
-            db.session.commit()
-            flash("Two-factor authentication setup successfully!")
-            return redirect(url_for('staff.staff_home'))
+                img.save(img_path)
+
+                flash("Scan the QR code and enter a generated code to complete setup.")
+                return render_template('enable_2fa.html', qr_code_url=img_path, user=current_user)
+
+            else:
+                flash('Two-factor authentication is already enabled!')
+                return redirect(url_for('staff.staff_home'))
         else:
-            flash("Invalid code. Please try again.")
+            flash('Not staff!', 'error')
+            return redirect(url_for('customer.home'))
+
+    # Handle the POST request
+    if request.method == 'POST':
+        code = request.form['otp']
+        if user.two_factor_secret:
+            totp = pyotp.TOTP(user.two_factor_secret)
+            if totp.verify(code):
+                user.is_2fa_enabled = True
+                db.session.commit()
+                flash("Two-factor authentication setup successfully!")
+                return redirect(url_for('staff.staff_home'))
+            else:
+                flash("Invalid code. Please try again.")
 
     return redirect(url_for('staff.enable_2fa'))

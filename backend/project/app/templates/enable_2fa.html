@@ -7,14 +7,14 @@
     <h1 class="mb-4">Enable Two-Factor Authentication</h1>
     
     {% if qr_code_url %}
-        <p>Scan the QR code below using an authenticator app like Google Authenticator or Authy:</p>
-        <img src="{{ qr_code_url }}" alt="QR Code" class="img-fluid mb-3">
+        <p>Scan the QR code below using an authenticator app like Microsoft Authenticator:</p>
+        <img src="{{ url_for('static', filename='qrcodes/' + user.s_ID + '.png') }}" alt="QR Code" class="img-fluid mb-3">
         <p>Alternatively, you can manually enter this key into your authenticator app:</p>
-        <code class="d-block mb-3">{{ secret_key }}</code>
+        <code class="d-block mb-3">{{ user.two_factor_secret }}</code>
         <p>After setting up your authenticator app, enter the code below to verify and enable 2FA:</p>
     {% endif %}
     
-    <form method="POST">
+    <form method="POST" action="{{ url_for('staff.enable_2fa') }}">
         <div class="mb-3">
             <label for="otp" class="form-label">Enter the code from your authenticator app:</label>
             <input type="text" id="otp" name="otp" class="form-control" placeholder="Enter OTP" required>

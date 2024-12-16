@@ -16,6 +16,7 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     app.secret_key = 'dev'
+    app._static_folder = "C:/Users/Ambar/Desktop/summer-of-code-2024/backend/project/static"
 
     init_db(app) #initialize the db
     migrate = Migrate(app, db) #start migration
