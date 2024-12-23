@@ -16,7 +16,7 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     app.secret_key = 'dev'
-    app._static_folder = "C:/Users/Ambar/Desktop/summer-of-code-2024/backend/project/static"
+    app._static_folder = "project/static"
 
     init_db(app) #initialize the db
     migrate = Migrate(app, db) #start migration
@@ -30,7 +30,7 @@ def create_app():
             db.session.add(admin)
             db.session.commit()
 
-    app.register_blueprint(product_blueprint)
+    app.register_blueprint(product_blueprint, url_prefix='/products/')
     app.register_blueprint(staff_blueprint, url_prefix='/staff/')
     app.register_blueprint(customer_blueprint)
     app.register_blueprint(transaction_blueprint, url_prefix='/transactions/')

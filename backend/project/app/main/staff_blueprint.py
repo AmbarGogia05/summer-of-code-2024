@@ -425,7 +425,7 @@ def enable_2fa():
                 qr_code_directory = 'static/qrcodes'
                 os.makedirs(qr_code_directory, exist_ok=True)  # Create the directory if it doesn't exist
 
-                img_path = f'C:/Users/Ambar/Desktop/summer-of-code-2024/backend/project/static/qrcodes/{user.s_ID}.png'
+                img_path = f'static/qrcodes/{user.s_ID}.png'
 
                 img.save(img_path)
 

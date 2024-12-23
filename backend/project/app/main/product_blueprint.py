@@ -154,7 +154,7 @@ def product_view():
         elif name and not sku:
             prod_list = Product.query.filter_by(Item_Name=name).all()
             if prod_list:
-                if sort_by:  # Sort based on user selection
+                if sort_by:
                     prod_list = sorted(prod_list, key=lambda x: tuple(getattr(x, param) for param in sort_by))
                 total = len(prod_list)
                 products = prod_list[(page - 1) * per_page: page * per_page]
@@ -175,7 +175,7 @@ def product_view():
         else:
             prod_list = Product.query.all()
             if prod_list:
-                if sort_by:  # Sort based on user selection
+                if sort_by:
                     prod_list = sorted(prod_list, key=lambda x: tuple(getattr(x, param) for param in sort_by))
                 total = len(prod_list)
                 products = prod_list[(page - 1) * per_page: page * per_page]
@@ -185,7 +185,6 @@ def product_view():
                 flash('No products available')
                 return redirect(url_for('product.product_view'))
 
-    # Handle GET request
     products_query = Product.query.all()
     total = len(products_query)
     products = products_query[(page - 1) * per_page: page * per_page]

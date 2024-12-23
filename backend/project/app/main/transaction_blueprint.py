@@ -88,14 +88,10 @@ def create_transaction():
     jwt_identity = get_jwt_identity()  # Returns "STF-RND-000001"
     claims = get_jwt()  # Access additional claims
     role = claims.get("role")
-    isadmin = claims.get("isadmin")
     
     if role != 'staff':
         flash('Not authorized to create transactions!')
         return redirect(url_for('customer.login'))
-    if role == 'staff' and not isadmin:
-        flash('Not authorized to create transactions!')
-        return redirect(url_for('staff.staff_home'))
 
     if request.method == 'POST':
         c_ID = request.form['c_ID']

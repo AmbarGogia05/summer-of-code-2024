@@ -1,12 +1,14 @@
 from flask import Blueprint, render_template, url_for, redirect, request, flash, session, make_response
 from app.models import db
 from app.models.customer import Customer
+from app.models.transaction import Transaction, TransactionItem
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_jwt_extended import create_access_token, set_access_cookies, unset_jwt_cookies, decode_token
 from app.email_utils import send_verification_email, create_verification_token, create_reset_token, send_password_reset_email
 import jwt
 from config import Config
 from functools import wraps
+from flask_paginate import Pagination, get_page_args
 customer_blueprint = Blueprint('customer', __name__)
 
 def logout_required(func):
@@ -244,3 +246,37 @@ def password_reset_request():
         return redirect(url_for('customer.password_reset_request'))
 
     return render_template('customer_password_reset_request.html')
+
+@customer_blueprint.route('/view_customer_transactions')
+@login_required
+def view_customer_transactions():
+    if current_user.role == 'customer':
+        page = request.args.get('page', 1, type=int)  # Current page number, gives default value 1
+        per_page = 9  # Number of items per page
+        transactions_query = current_user.customertransactions
+        total = len(transactions_query)
+        transactions = transactions_query[(page - 1) * per_page: page * per_page]
+        pagination = Pagination(page=page, total=total, per_page=per_page, css_framework='bootstrap4')
+        return render_template('view_customer_transactions.html', transactions=transactions, pagination=pagination)
+    else:
+        flash('Not a customer!')
+        return redirect(url_for('staff.staff_home'))
+@customer_blueprint.route('/find_transaction', methods=['GET', 'POST'])
+@login_required
+def transaction_finder():
+    if current_user.role == 'customer':
+        if request.method == 'POST':
+            t_id = request.form['ID']
+            transaction = Transaction.query.filter_by(c_id=current_user.c_ID, t_id=t_id).first()
+            if transaction:
+                transaction_items = transaction.items
+                return render_template('transaction_display_customer.html', transaction=transaction, transaction_items=transaction_items)
+            else:
+                flash('No such transaction!')
+                return redirect(url_for('customer.view_customer_transactions'))
+            
+        elif request.method == 'GET':
+            return redirect(url_for('customer.view_customer_transactions'))
+    else:
+        flash('Not a customer!')
+        return redirect('staff.staff_home')

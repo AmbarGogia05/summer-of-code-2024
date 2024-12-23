@@ -1,2 +1,6 @@
 env/
 static/
+project/__pycache__/
+project/app/__pycache__/
+project/app/main/__pycache__/
+project/app/models/__pycache__/

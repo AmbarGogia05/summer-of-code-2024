@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{%block title%}Staff Home{%endblock%}
+{%block content%}
+<h1>Transactions</h1>
+<a href="/transactions/create">Create a new transaction</a><br>
+<a href="/transactions/find">Find an existing transaction</a><br>
+<br>
+<h1>Products</h1>
+<a href="/products/create">Add a new product</a><br>
+<a href="/products/delete">Delete an existing product</a><br>
+<a href="/products/update">Update an existing product</a><br>
+<a href="/products/view">View and search inventory</a>
+<h1>Customers</h1>
+<a href="/staff/view_customers">View customers</a><br>
+{% if not user.is_2fa_enabled %}
+<a href="/staff/enable_2fa">Enable 2-Factor Authentication</a>
+{% endif %}
+<br><br>
+<a href="/staff/logout">Log out</a>
+{%endblock%}
