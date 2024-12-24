@@ -51,7 +51,7 @@ class Customer(db.Model):
 
     @property
     def is_active(self):
-        return self.c_isActive
+        return True
 
     @property
     def is_anonymous(self):

@@ -7,6 +7,7 @@ from app.models.transaction import Transaction, TransactionItem, TransactionHist
 from flask_login import login_required, current_user
 from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity, get_jwt
 from sqlalchemy.exc import OperationalError
+import os
 
 transaction_blueprint = Blueprint('transaction', __name__)
 
@@ -59,6 +60,7 @@ def process_transaction(item_list_sorted, c_ID, s_ID, t_ID=None):
             jsontype_list.append([sku, quantity])
 
         db.session.add(transaction_object)
+        db.session.commit()
         transactionlog = TransactionHistory(
             t_id=transaction_object.t_id,
             c_id=transaction_object.c_id,
@@ -78,6 +80,7 @@ def process_transaction(item_list_sorted, c_ID, s_ID, t_ID=None):
 
     except Exception as e:
         db.session.rollback()
+        print(e)
         flash('An unexpected error occurred during the transaction!', "error")
         return "error"
 
@@ -204,7 +207,7 @@ def find_transaction():
         transaction = Transaction.query.get(t_ID)
         transaction_items = TransactionItem.query.filter_by(transaction_id=t_ID).all()
         if transaction:
-            return render_template('view_and_update_transaction.html', transaction=transaction, transaction_items=transaction_items)
+            return render_template('view_and_update_transaction.html', isadmin=isadmin, transaction=transaction, transaction_items=transaction_items)
         else:
             flash('No such transaction', 'error')
             return redirect(url_for('transaction.find_transaction'))
@@ -267,3 +270,55 @@ def update_transaction():
                 return redirect(url_for('transaction.find_transaction'))
             else:
                 retry_count += 1
+
+from flask import render_template, make_response
+from weasyprint import HTML
+
+@transaction_blueprint.route('/invoice/<int:transaction_id>')
+@login_required
+def generate_invoice(transaction_id):
+    INVOICE_DIR = os.path.join('static', 'invoices')
+    if not os.path.exists(INVOICE_DIR):
+        os.makedirs(INVOICE_DIR)
+    if current_user.role == 'staff':
+        transaction = Transaction.query.get_or_404(transaction_id)
+        if current_user.s_isAdmin or transaction in current_user.stafftransactions:
+            transaction_items = transaction.items
+
+            rendered_html = render_template('transaction_invoice.html', 
+                                            transaction=transaction, 
+                                            transaction_items=transaction_items)
+
+            filename = f"invoice_{transaction_id}.pdf"
+            file_path = os.path.join(INVOICE_DIR, filename)
+            HTML(string=rendered_html).write_pdf(file_path)
+
+            response = make_response(open(file_path, 'rb').read())
+            response.headers['Content-Type'] = 'application/pdf'
+            response.headers['Content-Disposition'] = f'inline; filename=invoice_{transaction_id}.pdf'
+
+            return response
+        else:
+            flash('You are not authorized to view this invoice.')
+            return redirect(url_for('staff.staff_home'))
+    elif current_user.role == 'customer':
+        transaction = Transaction.query.get_or_404(transaction_id)
+        if transaction in current_user.customertransactions:
+            transaction_items = transaction.items
+
+            rendered_html = render_template('transaction_invoice.html', 
+                                            transaction=transaction, 
+                                            transaction_items=transaction_items)
+
+            filename = f"invoice_{transaction_id}.pdf"
+            file_path = os.path.join(INVOICE_DIR, filename)
+            HTML(string=rendered_html).write_pdf(file_path)
+
+            response = make_response(open(file_path, 'rb').read())
+            response.headers['Content-Type'] = 'application/pdf'
+            response.headers['Content-Disposition'] = f'inline; filename=invoice_{transaction_id}.pdf'
+
+            return response
+        else:
+            flash('You are not authorized to view this invoice.')
+            return redirect(url_for('customer.home'))                        

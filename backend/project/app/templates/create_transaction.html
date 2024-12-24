@@ -1,6 +1,6 @@
 {%extends 'base.html'%}
 <h1>{%block content%}{%block title%}Dynamic Transaction Form{%endblock%}</h1>
-    <form action="/submit-transaction" method="post" id="transaction-form">
+    <form action="/transactions/create" method="post" id="transaction-form">
         <input type="text" name="c_ID" placeholder="Enter customer ID" value="{{ transaction_data.get('c_ID', '') }}" required>
         
         <div id="product-list">

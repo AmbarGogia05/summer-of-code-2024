@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 from config import Config
 
 def create_verification_token(email):
+    secret_key = Config.JWT_SECRET_KEY
     token = jwt.encode({
         'email': email,
         'exp': datetime.now(timezone.utc) + timedelta(days=1)  
@@ -32,6 +33,7 @@ def send_verification_email(user_email, verification_link):
         print(f"An error occurred: {e}")
 
 def create_reset_token(email):
+    secret_key = Config.JWT_SECRET_KEY
     token = jwt.encode({
         'email': email,
         'exp': datetime.now(timezone.utc) + timedelta(minutes=15) 

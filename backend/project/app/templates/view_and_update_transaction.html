@@ -7,10 +7,10 @@
     <input type="text" id="transaction-id" name="t_ID" value="{{ transaction.t_id }}" readonly>
 
     <label for="customer-id">Customer ID:</label>
-    <input type="number" id="customer-id" name="c_ID" value="{{ transaction.c_id }}" {% if not jwt_identity['isadmin'] %}readonly{% endif %}>
+    <input type="text" id="customer-id" name="c_ID" value="{{ transaction.c_id }}" {% if not isadmin %}readonly{% endif %}>
 
     <label for="staff-id">Staff ID:</label>
-    <input type="number" id="staff-id" name="s_ID" value="{{ transaction.s_id }}" readonly>
+    <input type="text" id="staff-id" name="s_ID" value="{{ transaction.s_id }}" readonly>
 
     <label for="transaction-amount">Transaction Amount:</label>
     <input type="number" id="transaction-amount" name="transaction_amount" value="{{ transaction.total_amount }}" readonly>
@@ -22,15 +22,15 @@
             <label>SKU:</label>
             <input type="text" name="sku[]" value="{{ item.product_SKU }}" readonly>
             <label>Quantity:</label>
-            <input type="number" name="quantity[]" value="{{ item.quantity }}" {% if not jwt_identity['isadmin'] %}readonly{% endif %}>
-            {% if jwt_identity['isadmin'] %}
+            <input type="number" name="quantity[]" value="{{ item.quantity }}" {% if not isadmin %}readonly{% endif %}>
+            {% if isadmin %}
             <span class="remove-btn" onclick="removeProduct(this)">Remove</span>
             {% endif %}
         </div>
         {% endfor %}
     </div>
 
-    {% if jwt_identity['isadmin'] %}
+    {% if isadmin %}
     <button type="button" onclick="addProduct()">Add Product</button>
     <br><br>
     <button type="submit">Update Transaction</button>
