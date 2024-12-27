@@ -5,7 +5,6 @@ from app.models.customer import Customer
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_paginate import Pagination, get_page_args
 from flask_jwt_extended import create_access_token, set_access_cookies, unset_jwt_cookies
-from datetime import timedelta
 import jwt
 from config import Config
 from app.email_utils import create_reset_token, send_password_reset_email
@@ -58,8 +57,7 @@ def login():
             login_user(member)  
             flash('Login successful')
             access_token = create_access_token(identity=member.s_ID, 
-                                                additional_claims={"role": member.role, "isadmin": member.s_isAdmin}, 
-                                                expires_delta=timedelta(hours=1))
+                                                additional_claims={"role": member.role, "isadmin": member.s_isAdmin})
             
             response = make_response(redirect(url_for('staff.admin_home' if member.s_isAdmin else 'staff.staff_home')))
             set_access_cookies(response, access_token)
@@ -96,7 +94,7 @@ def verify_2fa(token):
                     "isadmin": user.s_isAdmin
                 }
                 
-                access_token = create_access_token(identity=identity, additional_claims=additional_claims, expires_delta=timedelta(hours=1))
+                access_token = create_access_token(identity=identity, additional_claims=additional_claims)
                 response = make_response(redirect(url_for('staff.admin_home' if user.s_isAdmin else 'staff.staff_home')))
                 set_access_cookies(response, access_token)
 
@@ -393,7 +391,7 @@ def password_reset_request():
         if user:
             # Create a token for the password reset link
             reset_token = create_reset_token(email)
-            reset_link = f"http://127.0.0.1:5000/password_reset/{reset_token}"
+            reset_link = f"http://ambargogia05.iitd.tech/password_reset/{reset_token}"
             
             # Send the password reset email
             send_password_reset_email(email, reset_link)

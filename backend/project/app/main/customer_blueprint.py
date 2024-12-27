@@ -103,7 +103,7 @@ def signup():
         db.session.commit()
         flash('Account created successfully!')
         verification_token = create_verification_token(email)
-        verification_link = f"http://127.0.0.1:5000/verify/{verification_token}"
+        verification_link = f"http://ambargogia05.iitd.tech/verify/{verification_token}"
         send_verification_email(email, verification_link)
         flash('Please verify your account through your registered email ID within 24 hours')
         return redirect(url_for("customer.login"))
@@ -235,7 +235,7 @@ def password_reset_request():
         if user:
             # Create a token for the password reset link
             reset_token = create_reset_token(email)
-            reset_link = f"http://127.0.0.1:5000/password_reset/{reset_token}"
+            reset_link = f"http://ambargogia05.iitd.tech/password_reset/{reset_token}"
             
             # Send the password reset email
             send_password_reset_email(email, reset_link)

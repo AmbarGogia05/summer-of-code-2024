@@ -12,3 +12,4 @@ class Config:
     JWT_COOKIE_SECURE = False  # Set to True if using HTTPS
     SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
     SENDGRID_SENDER_EMAIL='posservicesproject@gmail.com'
+    SERVER_NAME='ambargogia05.iitd.tech'

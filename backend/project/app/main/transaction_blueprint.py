@@ -399,3 +399,26 @@ def generate_invoice(transaction_id):
         else:
             flash('You are not authorized to view this invoice.')
             return redirect(url_for('customer.home'))                        
+
+@transaction_blueprint.route('/history/', methods = ['GET', 'POST'])
+@login_required
+def view_transaction_history():
+    if current_user.role == 'staff' and current_user.s_isAdmin:
+        if request.method == 'GET':
+            return render_template('find_transaction_history.html')
+        elif request.method == 'POST':
+            t_ID = request.form['t_ID']
+            try:
+                t_ID = int(t_ID)
+            except ValueError:
+                flash('Please enter a positive integer as transaction ID', 'error')
+                return redirect(url_for('transaction.view_transaction_history'))
+            transactionlogs = TransactionHistory.query.filter_by(t_id = t_ID).all()
+            return render_template('view_transaction_history.html', transactionlogs=transactionlogs)
+    else:
+        if current_user.role == 'staff':
+            flash('Not authorised to view transaction history', 'error')
+            return redirect(url_for('staff.staff_home'))
+        else:
+            flash('Not authorised to view transaction history', 'error')
+            return redirect(url_for('customer.home'))
