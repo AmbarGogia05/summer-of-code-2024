@@ -7,7 +7,7 @@ from app.models.transaction import Transaction, TransactionItem, TransactionHist
 from flask_login import login_required, current_user
 from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity, get_jwt
 from sqlalchemy.exc import OperationalError
-import os
+import os, traceback
 
 transaction_blueprint = Blueprint('transaction', __name__)
 
@@ -215,6 +215,94 @@ def find_transaction():
     if request.method == 'GET':
         return render_template('find_transaction.html')
 
+def transaction_updater(t_id, s_ID_new, transaction_items_new, skus_new):
+    try:
+        t_id = int(t_id)
+        transaction = Transaction.query.filter_by(t_id=t_id).with_for_update().one()
+        transaction.s_id = s_ID_new
+        with db.session.no_autoflush:
+            for (sku, new_quantity) in transaction_items_new:
+                try:
+                    sku = int(sku)
+                    if sku <= 0:
+                        raise ValueError
+                except ValueError:
+                    flash('Please input a positive integer as SKU!', "error")
+                    raise ValueError
+                try:
+                    new_quantity = int(new_quantity)
+                    product = Product.query.filter_by(Item_SKU=sku).with_for_update().one()
+                except ValueError:
+                    flash('Please input a positive integer as quantity!', "error")
+                    raise ValueError
+                except OperationalError:
+                    raise OperationalError
+                except Exception:
+                    flash(f'Product with SKU {sku} not found!', "error")
+                    raise Exception
+                item = TransactionItem.query.filter_by(transaction_id=t_id, product_SKU=sku).with_for_update().first()
+                if item:
+                    if item.quantity > new_quantity:
+                        product.Item_Qty += item.quantity - new_quantity
+                        item.quantity = new_quantity
+                    elif item.quantity == new_quantity:
+                        continue
+                    else:
+                        if new_quantity > item.quantity + product.Item_Qty:                    
+                            product.Item_Qty -= (new_quantity-item.quantity)
+                            item.quantity = new_quantity
+                        else:
+                            flash(f"Maximum available amount for SKU {sku} is {product.Item_Qty+item.quantity}")
+                            raise Exception
+                else:    
+                    if new_quantity > product.Item_Qty:
+                        flash(f'Max quantity available for product {sku} is {product.Item_Qty}!', "error")
+                        raise Exception
+                    
+                    product.Item_Qty -= new_quantity
+                    item = TransactionItem(transaction_id=t_id, product_SKU=sku, quantity=new_quantity, amount=product.Item_Price * new_quantity)
+                    transaction.items.append(item)
+            amount = 0
+            to_remove = []
+            for item in transaction.items:
+                if item.product_SKU not in skus_new:
+                    to_remove.append(item)
+                else:
+                    product = Product.query.get(item.product_SKU)
+                    item.amount = item.quantity*product.Item_Price
+                    amount += item.amount
+            for item in to_remove:
+                product = Product.query.filter_by(Item_SKU=item.product_SKU).with_for_update().one()
+                product.Item_Qty += item.quantity
+                db.session.delete(item)
+                transaction.items.remove(item)
+            transaction.total_amount = amount
+        db.session.commit()
+        jsontype_list = []
+        for item in transaction.items:
+            jsontype_list.append([item.product_SKU, item.quantity])
+
+        transactionlog = TransactionHistory(
+            t_id=transaction.t_id,
+            c_id=transaction.c_id,
+            s_id=transaction.s_id,
+            date=transaction.date,
+            time=transaction.time,
+            total_amount=transaction.total_amount,
+            items=jsontype_list
+        )
+        db.session.add(transactionlog)
+        db.session.commit()
+        return "success"
+    except OperationalError:
+        db.session.rollback()
+        return "retry"            
+    except Exception as e:
+        print(e)
+        traceback.print_exc()
+        db.session.rollback()
+        return "error"
+        
 @transaction_blueprint.route('/update/', methods=['GET', 'POST'])
 @login_required
 def update_transaction():
@@ -240,36 +328,25 @@ def update_transaction():
         c_ID = request.form['c_ID']
         s_ID_new = jwt_identity
         skus_new = request.form.getlist('sku[]')
+        skus_new = list(map(int, skus_new))
         quantities_new = request.form.getlist('quantity[]')
         transaction_items_new = list(zip(skus_new, quantities_new))
         transaction_items_new.sort(key=lambda x: x[0])
 
         counter = 0
         while counter <= 5:
-            obj = transaction_remover(t_id)
-            if obj == "error" and counter == 5:
-                flash("An error occurred, please try again!", 'error')
-                return redirect(url_for('transaction.update_transaction'))
-            elif obj == "error":
-                counter += 1
-                continue
-            else:
-                break
-
-        retry_count = 0
-        while retry_count < 5:
-            response = process_transaction(transaction_items_new, c_ID, s_ID_new, t_id)
+            response = transaction_updater(t_id, s_ID_new, transaction_items_new, skus_new)
             if response == "success":
                 flash("Successfully updated transaction!", "success")
                 return redirect(url_for('transaction.find_transaction'))
-            elif response == "error" or retry_count == 5:
-                if retry_count == 5:
+            elif response == "error" or counter == 5:
+                if counter == 5:
                     flash("Transaction update failed due to conflicting requests", "error")
                 else:
                     flash("Transaction update failed!", "error")
                 return redirect(url_for('transaction.find_transaction'))
             else:
-                retry_count += 1
+                counter += 1
 
 from flask import render_template, make_response
 from weasyprint import HTML
